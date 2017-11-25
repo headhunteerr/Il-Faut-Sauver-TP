@@ -20,11 +20,13 @@ public class GameController : MonoBehaviour {
     public int maxFood = 100;
     public int maxWater = 100;
     public int maxFuel = 200;
+    public int maxOxygen = 500;
 
     public int playerHealth;
     public int playerFood;
     public int playerWater;
     public int playerFuel;
+    public int playerOxygen;
 
     private void Awake()
     {
@@ -47,6 +49,7 @@ public class GameController : MonoBehaviour {
             playerFood = maxFood;
             playerWater = maxWater;
             playerFuel = maxFuel;
+            playerOxygen = maxOxygen;
 
             musicSlider.value = musicVolume;
             fxSlider.value = fxVolume;
@@ -56,7 +59,6 @@ public class GameController : MonoBehaviour {
     public void changeMusicVolume()
     {
         musicVolume = (int)musicSlider.value;
-        Debug.Log(musicVolume);
         musicSource.volume = (float)musicVolume / 100;
     }
 }
