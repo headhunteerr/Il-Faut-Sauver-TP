@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class Player : MonoBehaviour{
 
-    private static int maxLife = 200;
-    private static int maxOxygen = 200;
 
-    private bool isAlive = true;
+    private int playerHealth;
+    private int playerFood;
+    private int playerWater;
+    private int playerFuel;
 
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
