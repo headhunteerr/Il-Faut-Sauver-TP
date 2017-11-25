@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameController : MonoBehaviour {
+public class Player : MonoBehaviour{
 
-    UnityEngine.SceneManagement.Scene activeScene;
+    private static int maxLife = 200;
+    private static int maxOxygen = 200;
+
+    private bool isAlive = true;
 
 
 	// Use this for initialization
