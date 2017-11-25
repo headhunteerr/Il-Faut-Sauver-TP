@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour {
 
@@ -8,10 +9,11 @@ public class GameController : MonoBehaviour {
 
     public static bool firstStart = true;
 
-    public GameObject musicSlider;
+    public AudioSource musicSource;
+    public Slider musicSlider;
     public int musicVolume;
 
-    public GameObject fxSlider;
+    public Slider fxSlider;
     public int fxVolume;
 
     public int maxHealth = 100;
@@ -45,11 +47,16 @@ public class GameController : MonoBehaviour {
             playerFood = maxFood;
             playerWater = maxWater;
             playerFuel = maxFuel;
+
+            musicSlider.value = musicVolume;
+            fxSlider.value = fxVolume;
         }
     }
 
     public void changeMusicVolume()
     {
-        musicVolume = musicSlider.GetComponent("Slider").Value;
+        musicVolume = (int)musicSlider.value;
+        Debug.Log(musicVolume);
+        musicSource.volume = (float)musicVolume / 100;
     }
 }
