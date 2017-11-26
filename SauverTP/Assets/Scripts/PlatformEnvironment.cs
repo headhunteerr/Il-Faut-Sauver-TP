@@ -6,20 +6,24 @@ public class PlatformEnvironment : MonoBehaviour {
 
     public GameObject food;
     public GameObject fuel;
-    public GameObject oxygen;
     public GameObject water;
     // Use this for initialization
     void Start () {
         Planet planet = new Planet(false,false,false,false,1);
-
-        Debug.Log("begin");
 
         if (true || planet.withFuel())
         {
             for (int i = Random.Range(2, 10); i > 0; i--)
             {
                 instantiateObject(Random.Range(-1400, 1400), fuel);
-                Debug.Log("instanciated");
+            }
+        }
+
+        if (planet.withFood())
+        {
+            for (int i = Random.Range(2, 10); i > 0; i--)
+            {
+                instantiateObject(Random.Range(-1400, 1400), food);
             }
         }
 

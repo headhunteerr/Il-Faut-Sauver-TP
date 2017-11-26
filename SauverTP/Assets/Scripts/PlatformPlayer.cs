@@ -23,20 +23,20 @@ namespace UnityStandardAssets._2D
         private Rigidbody2D m_Rigidbody2D;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
         private bool noOxygen;
-        
-        public Text textHealth;
-        public Text textFood;
-        public Text textWater;
-        public Text textOxygen;
-        public Text textFuel;
+        private bool gameOver;
+
+        public Slider healthSlider;
+        public Slider foodSlider;
+        public Slider oxygenSlider;
+        public Slider fuelSlider;
+        public Slider waterSlider;
 
         public SpriteRenderer pressSprite;
+        public Animator animator;
 
-
-        private Chronometer healthChrono,decChrono;
+        private Chronometer decChrono;
         private void Awake()
         {
-            
             // Setting up references.
             m_GroundCheck = transform.Find("GroundCheck");
             m_CeilingCheck = transform.Find("CeilingCheck");
@@ -46,7 +46,6 @@ namespace UnityStandardAssets._2D
 
         private void Start()
         {
-            healthChrono = new Chronometer();
             decChrono = new Chronometer();
             decChrono.Start();
             GameController controller = new GameController();
@@ -61,19 +60,22 @@ namespace UnityStandardAssets._2D
             playerWater = controller.playerWater;
             playerOxygen = controller.playerWater;
 
-            textFood.text = "food: " + playerFood;
-            textFuel.text = "fuel: " + playerFuel;
-            textWater.text = "water: " + playerWater;
-            textOxygen.text = "oxygen: " + playerOxygen;
-            textHealth.text = "health: " + ((int)playerHealth);
+            foodSlider.maxValue = controller.maxFood;
+            fuelSlider.maxValue = controller.maxFuel;
+            waterSlider.maxValue = controller.maxWater;
+            oxygenSlider.maxValue = controller.maxOxygen;
+            healthSlider.maxValue = controller.maxHealth;
+            
+
             m_Rigidbody2D.gravityScale = planet.getGravityScale();
         }
 
         private void FixedUpdate()
         {
+            if (gameOver) return;
+
             pressSprite.enabled = false;
 
-            healthChrono.Update();
             decChrono.Update();
             if (decChrono.getTime() >= 1)
             {
@@ -82,42 +84,30 @@ namespace UnityStandardAssets._2D
                 playerFood = max(0, playerFood - 1);
                 decChrono.Reset();
                 decChrono.Start();
-            }
 
-
-            if ((playerOxygen <= 0 || playerFood <= 0))
-            {
-                
-                if (!healthChrono.hasStarted())
+                if (playerOxygen <= 0 || playerFood <= 0 || playerWater <= 0)
+                {
+                    float delta = playerFood <= 0 ? 0.01f : 0;
+                    if (playerOxygen <= 0)
                     {
-                    healthChrono.Start();
+                        delta += 0.1f;
+                    }
+                    if (playerWater <= 0)
+                    {
+                        delta += 0.05f;
+                    }
+                    playerHealth -= delta;
+                    if (playerHealth < 0)
+                    {
+                        playerHealth = 0;
+                    }
                 }
-                float delta = playerFood <= 0 ? 0.01f : 0;
-                if (playerOxygen <= 0)
-                {
-                    delta += 0.1f;
-                }
-                if (playerWater <= 0)
-                {
-                    delta += 0.05f;
-                }
-                playerHealth -= delta;
-                if (playerHealth<0)
-                {
-                    playerHealth = 0;
-                }
-            }
-            else
-            {
-                if (healthChrono.hasStarted())
-                {
-                    healthChrono.Reset();
-                }
+                updateUI();
             }
 
-            if (playerHealth == 0)
+            if (playerHealth <= 0)
             {
-                gameOver();
+                GameOver();
             }
             m_Grounded = false;
 
@@ -172,7 +162,7 @@ namespace UnityStandardAssets._2D
             // Set the vertical animation
             m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
 
-            updateUI();
+           
         }
 
 
@@ -272,19 +262,20 @@ namespace UnityStandardAssets._2D
             transform.localScale = theScale;
         }
 
-        void gameOver()
+        void GameOver()
         {
+        //    gameOver = true;
             //TODO
         }
 
 
         void updateUI()
         {
-            textFuel.text = "fuel: " + playerFuel;
-            textOxygen.text = "oxygen: " + playerOxygen;
-            textWater.text = "water: " + playerWater;
-            textFood.text = "food: " + playerFood;
-            textHealth.text = "health: " + ((int)playerHealth);
+            fuelSlider.value = playerFuel;
+            oxygenSlider.value = playerOxygen;
+            waterSlider.value = playerWater;
+            foodSlider.value = playerFood;
+            healthSlider.value = playerHealth;
         }
     }
 }
