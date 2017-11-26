@@ -10,6 +10,7 @@ public class Player : MonoBehaviour{
     public int playerWater;
     public int playerFuel;
     public int playerOxygen;
+    public int distanceTravelled;
 
 
     // Use this for initialization
@@ -19,10 +20,6 @@ public class Player : MonoBehaviour{
         playerWater = GameController.Instance.playerWater;
         playerFuel = GameController.Instance.playerFuel;
         playerOxygen = GameController.Instance.playerOxygen;
+        distanceTravelled = GameController.Instance.distanceTravelled;
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }

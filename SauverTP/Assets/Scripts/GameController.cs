@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
 
     public static GameController Instance;
+    public static int distanceToWin = 100;
 
     public static bool firstStart = true;
 
@@ -27,6 +29,8 @@ public class GameController : MonoBehaviour {
     public int playerWater;
     public int playerFuel;
     public int playerOxygen;
+    public int distanceTravelled;
+    public Planet currentPlanet;
 
     private void Awake()
     {
@@ -53,6 +57,8 @@ public class GameController : MonoBehaviour {
 
             musicSlider.value = musicVolume;
             fxSlider.value = fxVolume;
+
+            firstStart = false;
         }
     }
 
@@ -60,5 +66,15 @@ public class GameController : MonoBehaviour {
     {
         musicVolume = (int)musicSlider.value;
         musicSource.volume = (float)musicVolume / 100;
+    }
+
+    public void gameStart()
+    {
+        SceneManager.LoadScene("ChoosePlanet");
+    }
+
+    public void goOnPlanet()
+    {
+        SceneManager.LoadScene("PlanetScene");
     }
 }

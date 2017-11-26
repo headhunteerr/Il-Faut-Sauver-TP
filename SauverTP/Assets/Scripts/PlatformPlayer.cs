@@ -51,7 +51,7 @@ namespace UnityStandardAssets._2D
             GameController controller = new GameController();
             controller.playerHealth = 100;
             controller.playerFood = 100;
-            Planet planet = new Planet(true, true, true, true, 20);
+            Planet planet = GameController.Instance.currentPlanet;
 
             noOxygen = !planet.withOxigen();
             playerFood = controller.playerFood;
@@ -65,9 +65,6 @@ namespace UnityStandardAssets._2D
             waterSlider.maxValue = controller.maxWater;
             oxygenSlider.maxValue = controller.maxOxygen;
             healthSlider.maxValue = controller.maxHealth;
-            
-
-            m_Rigidbody2D.gravityScale = planet.getGravityScale();
         }
 
         private void FixedUpdate()

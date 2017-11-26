@@ -9,7 +9,7 @@ public class PlatformEnvironment : MonoBehaviour {
     public GameObject water;
     // Use this for initialization
     void Start () {
-        Planet planet = new Planet(false,false,false,false,1);
+        Planet planet = GameController.Instance.currentPlanet;
 
         if (true || planet.withFuel())
         {
