@@ -3,27 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class IntroPanel : MonoBehaviour{
+public class IntroPanel : MonoBehaviour
+{
 
     public Button startButton;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-    public void GameStart(){
-        StartCoroutine(waitToRead());
-        startButton.gameObject.SetActive(true);
-    }
-
-    IEnumerator waitToRead()
+    private Chronometer chronometer = null;
+    private bool activateButton;
+    // Use this for initialization
+    void Start()
     {
-        yield return new WaitForSeconds(5f);
+
     }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (chronometer != null)
+        {
+            chronometer.Update();
+            if (chronometer.getTime() >= 5)
+            {
+                startButton.gameObject.SetActive(true);
+                chronometer = null;
+            }
+        }
+
+    }
+
+    public void GameStart()
+    {
+        chronometer = new Chronometer();
+        chronometer.Start();
+
+    }
+
 }

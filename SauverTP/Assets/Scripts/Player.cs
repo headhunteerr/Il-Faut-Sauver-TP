@@ -5,7 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour{
 
 
-    public int playerHealth;
+    public float playerHealth;
     public int playerFood;
     public int playerWater;
     public int playerFuel;

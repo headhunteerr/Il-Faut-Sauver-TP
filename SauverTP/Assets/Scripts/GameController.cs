@@ -22,7 +22,7 @@ public class GameController : MonoBehaviour {
     public int maxFuel = 200;
     public int maxOxygen = 500;
 
-    public int playerHealth;
+    public float playerHealth;
     public int playerFood;
     public int playerWater;
     public int playerFuel;
