@@ -22,15 +22,21 @@ namespace UnityStandardAssets._2D
         private Animator m_Anim;            // Reference to the player's animator component.
         private Rigidbody2D m_Rigidbody2D;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
-
+        private bool noOxygen;
+        
         public Text textHealth;
         public Text textFood;
         public Text textWater;
         public Text textOxygen;
         public Text textFuel;
 
+        public SpriteRenderer pressSprite;
+
+
+        private Chronometer healthChrono,decChrono;
         private void Awake()
         {
+            
             // Setting up references.
             m_GroundCheck = transform.Find("GroundCheck");
             m_CeilingCheck = transform.Find("CeilingCheck");
@@ -40,23 +46,79 @@ namespace UnityStandardAssets._2D
 
         private void Start()
         {
-            //GameController controller = new GameController();
-            GameController controller = GameController.Instance;
+            healthChrono = new Chronometer();
+            decChrono = new Chronometer();
+            decChrono.Start();
+            GameController controller = new GameController();
+            controller.playerHealth = 100;
+            controller.playerFood = 100;
+            Planet planet = new Planet(true, true, true, true, 20);
+
+            noOxygen = !planet.withOxigen();
             playerFood = controller.playerFood;
             playerHealth = controller.playerHealth;
             playerFuel = controller.playerFuel;
             playerWater = controller.playerWater;
-            playerOxygen = controller.playerOxygen;
+            playerOxygen = controller.playerWater;
 
             textFood.text = "food: " + playerFood;
             textFuel.text = "fuel: " + playerFuel;
             textWater.text = "water: " + playerWater;
-            textOxygen.text = "oxygen: " + textOxygen;
-            textHealth.text = "health: " + playerHealth;
+            textOxygen.text = "oxygen: " + playerOxygen;
+            textHealth.text = "health: " + ((int)playerHealth);
+            m_Rigidbody2D.gravityScale = planet.getGravityScale();
         }
 
         private void FixedUpdate()
         {
+            pressSprite.enabled = false;
+
+            healthChrono.Update();
+            decChrono.Update();
+            if (decChrono.getTime() >= 1)
+            {
+                playerWater = max(0, playerWater - 2);
+                if (noOxygen) playerOxygen = max(0, playerOxygen - 3);
+                playerFood = max(0, playerFood - 1);
+                decChrono.Reset();
+                decChrono.Start();
+            }
+
+
+            if ((playerOxygen <= 0 || playerFood <= 0))
+            {
+                
+                if (!healthChrono.hasStarted())
+                    {
+                    healthChrono.Start();
+                }
+                float delta = playerFood <= 0 ? 0.01f : 0;
+                if (playerOxygen <= 0)
+                {
+                    delta += 0.1f;
+                }
+                if (playerWater <= 0)
+                {
+                    delta += 0.05f;
+                }
+                playerHealth -= delta;
+                if (playerHealth<0)
+                {
+                    playerHealth = 0;
+                }
+            }
+            else
+            {
+                if (healthChrono.hasStarted())
+                {
+                    healthChrono.Reset();
+                }
+            }
+
+            if (playerHealth == 0)
+            {
+                gameOver();
+            }
             m_Grounded = false;
 
             // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
@@ -70,10 +132,20 @@ namespace UnityStandardAssets._2D
                 {
                     m_Grounded = true;
                 }
-                    
+                else if (isObject(colliders[i].gameObject))
+                {
+                    pressSprite.enabled = true;
+                    if (Input.GetKey("e"))
+                    {
+                        handleObject(colliders[i].gameObject.name);
+                        Destroy(colliders[i].gameObject);
+                    }
+
+                }
             }
 
-            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, m_FacingRight ? Vector2.right : Vector2.left, 20);
+            
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, m_FacingRight ? Vector2.right : Vector2.left, 25);
             for (int i = 0; i < hits.Length; i++)
             {
                 RaycastHit2D hit = hits[i];
@@ -81,7 +153,9 @@ namespace UnityStandardAssets._2D
                 {
                     if (isObject(hit.collider.gameObject))
                     {
-                        Debug.Log(hit.collider.gameObject.name);
+                        pressSprite.enabled = true;
+                        pressSprite.flipX = !m_FacingRight;
+
                         if (Input.GetKey("e"))
                         {
                             handleObject(hit.collider.gameObject.name);
@@ -97,6 +171,8 @@ namespace UnityStandardAssets._2D
 
             // Set the vertical animation
             m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
+
+            updateUI();
         }
 
 
@@ -166,26 +242,24 @@ namespace UnityStandardAssets._2D
             if (name.Contains("oxygen"))
             {
                 playerOxygen += value;
-                textOxygen.text = "oxygen: " + playerOxygen;
-            } else if (name.Contains("health"))
-            {
-                playerHealth += value;
-                textHealth.text = "health: " + playerHealth;
+                
             } else if (name.Contains("food"))
             {
                 playerFood += value;
-                textFood.text = "food: " + playerFood;
             } else if (name.Contains("water"))
             {
                 playerWater += value;
-                textWater.text = "water: " + playerWater;
             } else if (name.Contains("fuel"))
             {
                 playerFuel += value;
-                textFuel.text = "fuel: " + playerFuel;
             }
+
         }
 
+        private int max(int a, int b)
+        {
+            return a >= b ? a : b;
+        }
 
         private void Flip()
         {
@@ -196,6 +270,21 @@ namespace UnityStandardAssets._2D
             Vector3 theScale = transform.localScale;
             theScale.x *= -1;
             transform.localScale = theScale;
+        }
+
+        void gameOver()
+        {
+            //TODO
+        }
+
+
+        void updateUI()
+        {
+            textFuel.text = "fuel: " + playerFuel;
+            textOxygen.text = "oxygen: " + playerOxygen;
+            textWater.text = "water: " + playerWater;
+            textFood.text = "food: " + playerFood;
+            textHealth.text = "health: " + ((int)playerHealth);
         }
     }
 }
