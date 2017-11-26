@@ -33,8 +33,12 @@ namespace UnityStandardAssets._2D
 
         public SpriteRenderer pressSprite;
         public Animator animator;
-
+        public AudioSource pasSound;
         private Chronometer decChrono;
+        public Button leaveBut;
+        public Text gameOverText;
+
+
         private void Awake()
         {
             // Setting up references.
@@ -46,12 +50,14 @@ namespace UnityStandardAssets._2D
 
         private void Start()
         {
+            gameOverText.enabled = false;
+            leaveBut.onClick.AddListener(leaveScene);
             decChrono = new Chronometer();
             decChrono.Start();
             GameController controller = new GameController();
-            controller.playerHealth = 100;
+            controller.playerHealth = 10;
             controller.playerFood = 100;
-            Planet planet = GameController.Instance.currentPlanet;
+            Planet planet = new Planet(true, true, true, true, 20);
 
             noOxygen = !planet.withOxigen();
             playerFood = controller.playerFood;
@@ -65,15 +71,49 @@ namespace UnityStandardAssets._2D
             waterSlider.maxValue = controller.maxWater;
             oxygenSlider.maxValue = controller.maxOxygen;
             healthSlider.maxValue = controller.maxHealth;
+            
+
+            m_Rigidbody2D.gravityScale = planet.getGravityScale();
         }
 
         private void FixedUpdate()
         {
-            if (gameOver) return;
-
-            pressSprite.enabled = false;
 
             decChrono.Update();
+            if (gameOver)
+            {
+                if (pasSound.isPlaying)
+                {
+                    pasSound.loop = false;
+                }
+
+                if (gameOverText.color.a < 1f)
+                {
+                    
+                    setAlpha(gameOverText, Math.Min(1, 2*decChrono.getTime()* decChrono.getTime()));
+                }
+                return;
+            }
+
+            if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow))
+            {
+                if (!pasSound.isPlaying)
+                {
+                    pasSound.Play();
+                    pasSound.loop = true;
+
+                }
+            }
+            else
+            {
+                if (pasSound.isPlaying)
+                {
+                    pasSound.loop = false;
+                }
+            }
+            pressSprite.enabled = false;
+
+            
             if (decChrono.getTime() >= 1)
             {
                 playerWater = max(0, playerWater - 2);
@@ -84,14 +124,14 @@ namespace UnityStandardAssets._2D
 
                 if (playerOxygen <= 0 || playerFood <= 0 || playerWater <= 0)
                 {
-                    float delta = playerFood <= 0 ? 0.01f : 0;
+                    float delta = playerFood <= 0 ? 1 : 0;
                     if (playerOxygen <= 0)
                     {
-                        delta += 0.1f;
+                        delta += 10;
                     }
                     if (playerWater <= 0)
                     {
-                        delta += 0.05f;
+                        delta += 5;
                     }
                     playerHealth -= delta;
                     if (playerHealth < 0)
@@ -261,10 +301,18 @@ namespace UnityStandardAssets._2D
 
         void GameOver()
         {
-        //    gameOver = true;
-            //TODO
+            gameOverText.enabled = true;
+            setAlpha(gameOverText, 0);
+            gameOver = true;
+            decChrono.Reset();
+            decChrono.Start();
+            
         }
 
+        void setAlpha(Text o, float a)
+        {
+            o.color = new Color(o.color.r, o.color.g, o.color.b, a);
+        }
 
         void updateUI()
         {
@@ -274,5 +322,19 @@ namespace UnityStandardAssets._2D
             foodSlider.value = playerFood;
             healthSlider.value = playerHealth;
         }
+
+        public void leaveScene()
+        {
+            GameController controller = GameController.Instance;
+            controller.playerFood = playerFood;
+            controller.playerFuel = playerFuel;
+            controller.playerHealth = playerHealth;
+            controller.playerOxygen = playerOxygen;
+            controller.playerWater = playerWater;
+        }
     }
+
+
+
+    
 }
